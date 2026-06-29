@@ -2,14 +2,21 @@ from playwright.sync_api import sync_playwright
 from datetime import datetime
 
 def fetch_posts():
-    url = "https://www.linkedin.com/company/byd-energy-storage/posts/"
+    url = "https://www.linkedin.com/company/bydenergystorage/posts/"
 
     with sync_playwright() as p:
         browser = p.chromium.launch(headless=True)
         page = browser.new_page()
 
         page.goto(url, timeout=60000)
-        page.wait_for_timeout(5000)
+        page.wait_for_timeout(8000)
+
+        content = page.content()
+
+        # 👉 如果被LinkedIn拦截
+        if "sign in" in content.lower() or len(content) < 1000:
+            browser.close()
+            return []
 
         posts = page.query_selector_all("div.feed-shared-update-v2")
 
