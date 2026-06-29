@@ -12,19 +12,34 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
+      # ✔ Python环境
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
           python-version: "3.10"
 
+      # ✔ 依赖安装（关键修复）
       - name: Install dependencies
         run: |
           pip install -r requirements.txt
-          playwright install
 
+      # ✔ 安装 Playwright（关键修复）
+      - name: Install Playwright browsers
+        run: |
+          python -m playwright install --with-deps
+
+      # ✔ 运行生成RSS
       - name: Run generator
-        run: python generate.py
+        run: |
+          python generate.py
 
+      # ✔ 检查 feed.xml 是否生成（关键）
+      - name: Check RSS file
+        run: |
+          ls -la
+          test -f feed.xml || (echo "feed.xml not found" && exit 1)
+
+      # ✔ 提交 RSS
       - name: Commit RSS
         run: |
           git config --global user.name "github-actions"
